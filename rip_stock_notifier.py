@@ -148,13 +148,8 @@ def send_email(subject: str, body: str) -> None:
         logging.error("Failed to send email notification: %s", exc)
 
 
-# Global variable to track previously seen stock to avoid spam
-_previous_stock = {}
-
 def check_and_notify() -> None:
-    """Check the store for available packs and send notifications for changes."""
-    global _previous_stock
-    
+    """Check the store for available packs and send notifications."""
     # Get current pack availability from store page
     available_packs = fetch_available_packs_from_store()
     
@@ -162,39 +157,19 @@ def check_and_notify() -> None:
         logging.info("No packs found in store (or failed to fetch)")
         return
     
-    notifications_sent = 0
     total_packs = 0
     
-    # Check each available set and send notifications only for changes
+    # Send notifications for all available packs
     for set_name, count in available_packs.items():
         total_packs += count
-        previous_count = _previous_stock.get(set_name, 0)
-        
-        if previous_count == 0:
-            # New set in stock - send notification
-            message = f"@here {set_name} has {count} pack(s) available on Rip.fun!"
-            logging.info("NEW STOCK: %s", message)
-            send_email(subject=f"Rip.fun: {set_name} in stock", body=message)
-            send_discord_notification(message)
-            notifications_sent += 1
-        elif count > previous_count + 5:
-            # Significant increase in stock (more than 5 packs) - send notification
-            message = f"@here {set_name} restocked! Now {count} pack(s) available (was {previous_count})"
-            logging.info("RESTOCK: %s", message)
-            send_email(subject=f"Rip.fun: {set_name} restocked", body=message)
-            send_discord_notification(message)
-            notifications_sent += 1
-        else:
-            # Same stock level - no notification, just log
-            logging.debug("%s still has %d packs (no change)", set_name, count)
-    
-    # Update tracking
-    _previous_stock = available_packs.copy()
+        message = f"@here {set_name} has {count} pack(s) available on Rip.fun!"
+        logging.info("STOCK ALERT: %s", message)
+        send_email(subject=f"Rip.fun: {set_name} in stock", body=message)
+        send_discord_notification(message)
     
     # Log summary
     set_count = len(available_packs)
-    logging.info("Found %d sets with %d total packs in stock (%d notifications sent)", 
-                set_count, total_packs, notifications_sent)
+    logging.info("Found %d sets with %d total packs in stock", set_count, total_packs)
 
 
 
