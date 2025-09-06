@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:rip.fun)",
+      "WebFetch(domain:api.rip.fun)",
+      "Bash(scp:*)",
+      "Bash(ssh:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
