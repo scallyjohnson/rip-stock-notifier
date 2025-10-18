@@ -38,6 +38,10 @@ import logging
 import re
 from typing import Dict
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Configuration
